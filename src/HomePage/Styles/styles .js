@@ -124,6 +124,10 @@ const styles = {
   '@media (max-width: 600px)': {
     cardsWrapper: {
       flexBasis: 'auto'
+    },
+    dialogWrapper: {
+      minwidth: '200px',
+      minHeight: '200px'
     }
   }
 };
