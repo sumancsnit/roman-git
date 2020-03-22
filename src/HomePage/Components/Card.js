@@ -53,7 +53,7 @@ const Cards = (props) => {
   return (
     <>
       <Card className={classes.cardSection}>
-        <CardActionArea>
+        <CardActionArea onClick={() => alert('oh dog')}>
           {/* <CardMedia
             className={classes.media}
             image='/static/images/cards/contemplative-reptile.jpg'
@@ -70,7 +70,12 @@ const Cards = (props) => {
             </Avatar>
           </Box>
           <CardContent>
-            <Typography className={classes.usernameText} gutterBottom variant='h5' component='h2'>
+            <Typography
+              className={classes.usernameText}
+              gutterBottom
+              variant='h5'
+              component='h2'
+            >
               {userName}
             </Typography>
             <Divider />

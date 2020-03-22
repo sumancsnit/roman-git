@@ -9,8 +9,6 @@ const fetchGitProfiles = async (searchText) => {
     }
   });
 
-  console.log(response);
-
   if (response?.status === 200) {
     const payLoad = response.data.items.map((row) => ({
       ...row,

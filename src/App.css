@@ -3,7 +3,21 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #e3f2fd;
+}
+#root {
+  background-color: #e3f2fd;
 }
 body {
   overflow: hidden;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  width: 5px;
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
 }

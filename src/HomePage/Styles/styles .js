@@ -9,14 +9,15 @@ const styles = {
   //   padding: '0 30px'
   // },
   mainComtainer: {
-    height: 'calc(100vh)',
-    paddingTop: '1rem',
+    height: '100%',
+    padding: '1rem 8px',
     marginTop: '1rem',
-    // backgroundColor: '#bbdefb',
+    backgroundColor: '#fff',
     boxShadow: '0 3px 6px rgba(0,0,0,0.16), 0 3px 6px rgba(0,0,0,0.23)',
     borderRadius: '4px',
-    overflow: 'hidden'
-    // marginBottom: '1rem'
+    overflow: 'hidden',
+    maxWidth: '1100px',
+    marginBottom: '.5rem'
   },
   searchBarWrapper: {
     marginTop: '100px'
@@ -39,13 +40,15 @@ const styles = {
     padding: 10
   },
   cardsWrapper: {
-    marginTop: '1rem'
+    marginTop: '1rem',
+    display: 'flex',
+    justifyContent: 'center'
   },
   cardsBoxWrapper: {
+    height: 'calc(100vh - 135px)',
     overflowX: 'hidden',
     overflowY: 'auto',
-    height: '100%',
-    paddingBottom: '100px',
+    paddingBottom: '2rem',
     marginTop: '1rem'
   },
   cardSection: {

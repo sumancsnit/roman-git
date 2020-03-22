@@ -8,20 +8,26 @@ import {
   Paper,
   InputBase,
   IconButton,
-  Divider
+  Divider,
+  TextField,
+  InputAdornment
 } from '@material-ui/core';
 import SearchIcon from '@material-ui/icons/Search';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import styles from '../Styles/styles ';
 import Card from './Card';
 import { fetchGitProfiles } from '../services';
+import trimStart from 'lodash/trimStart';
+import trim from 'lodash/trim';
 
 class HomePage extends Component {
   constructor(props) {
     super(props);
     this.state = {
       cardData: [],
-      loaded: false
+      formInput: '',
+      loaded: false,
+      formError: 'required field'
     };
   }
 
@@ -29,27 +35,70 @@ class HomePage extends Component {
     this.getGitProfiles();
   }
 
+  handleSubmit = () => {
+    let { formInput } = this.state;
+    formInput = trim(formInput);
+
+    if (formInput) {
+      this.setState({ formError: 'required field' });
+    }
+  };
+
+  // handleSubmit = async () => {
+  //   let { formData } = this.state;
+
+  //   formData = {
+  //     ...formData,
+  //     competencyName: trim(formData.competencyName),
+  //     competencyCode: trim(formData.competencyCode),
+  //     competencyDesc: trim(formData.competencyDesc)
+  //   };
+
+  //   this.setState(({ status }) => ({
+  //     status: { ...status, isSubmitted: true }
+  //   }));
+
   getGitProfiles = async () => {
     try {
-      const cardData = await fetchGitProfiles('john');
+      const cardData = await fetchGitProfiles('neha');
       this.setState({ cardData, loaded: true });
     } catch (error) {
       console.log(error.message);
     }
   };
+
+  handleChangeForm = (event) => {
+    let { value } = event.target;
+    value = trimStart(value);
+    this.setState((prevState) => {
+      let { formError, formInput } = prevState;
+      formInput = value;
+      if (value) formError = '';
+      return { formInput, formError };
+    });
+  };
+
+  // handleChange = (event) => {
+  //   const { name, value } = event.target;
+  //   this.setState((prevState) => {
+  //     const { formData, formErrors } = prevState;
+  //     formData[name] = trimStart(value);
+  //     if (value) {
+  //       delete formErrors[name];
+  //     }
+  //     return { formData, formErrors };
+  //   });
+
+  //   this.debounceFieldValidation(name);
+  // };
+
   render() {
     const { classes } = this.props;
-    const { cardData } = this.state;
-    console.log('card-data', cardData);
+    const { cardData, formInput, formError } = this.state;
     return (
       <>
-        <Container
-          component='Paper'
-          className={classes.mainComtainer}
-          maxWidth='lg'
-        >
+        <Container className={classes.mainComtainer} maxWidth='lg'>
           <Box className={classes.formSection}>
-            {/* <Grid item xs={12}> */}
             <Paper component='form' className={classes.formWrapper}>
               <IconButton
                 disabled
@@ -61,17 +110,22 @@ class HomePage extends Component {
               <InputBase
                 className={classes.inputForm}
                 placeholder='Search github'
-                inputProps={{ 'aria-label': 'Search github' }}
+                margin='dense'
+                input
+                value={formInput}
+                name='searchInput'
+                onChange={this.handleChangeForm}
+                inputProps={{
+                  'aria-label': 'Search github',
+                  error: true,
+                  helperText: 'asdf'
+                }}
+                onSubmit={() => alert('oh dog - 2')}
               />
-              <IconButton
-                type='submit'
-                className={classes.iconButton}
-                aria-label='search'
-              >
+              <IconButton className={classes.iconButton} aria-label='search'>
                 <SearchIcon />
               </IconButton>
             </Paper>
-            {/* </Grid> */}
           </Box>
           <Divider className={classes.divider} />
           <Box className={classes.cardsBoxWrapper}>
@@ -82,13 +136,14 @@ class HomePage extends Component {
               alignItems='center'
               spacing={1}
             >
-              {cardData.map((profile) => (
+              {cardData.map((profile, idx) => (
                 <Grid
                   className={classes.cardsWrapper}
                   item
                   md={4}
                   sm={6}
                   xs={12}
+                  key={`${profile.score + idx}`}
                 >
                   <Card
                     srcAvatar={profile.avatar_url}
