@@ -1,24 +1,35 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import {
   Container,
-  Typography,
   Box,
   Grid,
   Paper,
-  InputBase,
   IconButton,
   Divider,
   TextField,
-  InputAdornment
+  CircularProgress,
+  Snackbar,
+  Collapse,
+  Button
 } from '@material-ui/core';
+import MuiAlert from '@material-ui/lab/Alert';
 import SearchIcon from '@material-ui/icons/Search';
+import ArrowUpwardIcon from '@material-ui/icons/ArrowUpward';
+import ArrowDownwardIcon from '@material-ui/icons/ArrowDownward';
 import GitHubIcon from '@material-ui/icons/GitHub';
 import styles from '../Styles/styles ';
-import Card from './Card';
 import { fetchGitProfiles } from '../services';
 import trimStart from 'lodash/trimStart';
 import trim from 'lodash/trim';
+// others component
+import Card from './Card';
+import DetailsPopup from './DetailsPopup';
+
+const Alert = (props) => {
+  return <MuiAlert elevation={6} variant='filled' {...props} />;
+};
 
 class HomePage extends Component {
   constructor(props) {
@@ -26,45 +37,57 @@ class HomePage extends Component {
     this.state = {
       cardData: [],
       formInput: '',
-      loaded: false,
-      formError: 'required field'
+      loader: false,
+      formError: '',
+      noDataCell: false,
+      notify: false,
+      notifyTheme: 'success',
+      sortAssending: false,
+      popup: {}
     };
   }
 
   componentDidMount() {
-    this.getGitProfiles();
+    document.title = 'unacademy test';
   }
 
   handleSubmit = () => {
     let { formInput } = this.state;
     formInput = trim(formInput);
-
-    if (formInput) {
-      this.setState({ formError: 'required field' });
+    if (!formInput) {
+      this.setState({ formError: 'required field', cardData: [] });
+    } else {
+      this.getGitProfiles(formInput);
     }
   };
 
-  // handleSubmit = async () => {
-  //   let { formData } = this.state;
-
-  //   formData = {
-  //     ...formData,
-  //     competencyName: trim(formData.competencyName),
-  //     competencyCode: trim(formData.competencyCode),
-  //     competencyDesc: trim(formData.competencyDesc)
-  //   };
-
-  //   this.setState(({ status }) => ({
-  //     status: { ...status, isSubmitted: true }
-  //   }));
-
-  getGitProfiles = async () => {
+  getGitProfiles = async (formInput) => {
+    this.setState({ cardData: [], noDataCell: false, loader: true });
     try {
-      const cardData = await fetchGitProfiles('neha');
-      this.setState({ cardData, loaded: true });
+      const cardData = await fetchGitProfiles(formInput);
+
+      if (!cardData.total_count) {
+        this.setState({
+          noDataCell: true,
+          notify: true,
+          notifyTheme: 'warning'
+        });
+      } else {
+        const profileDetails = cardData.items.map((profile) => ({
+          ...profile,
+          score: Math.round(profile.score)
+        }));
+        this.setState({
+          cardData: profileDetails,
+          loader: false,
+          notify: true,
+          notifyTheme: 'success'
+        });
+      }
     } catch (error) {
-      console.log(error.message);
+      this.setState({ noDataCell: true, notify: true, notifyTheme: 'error' });
     }
+    this.setState({ loader: false });
   };
 
   handleChangeForm = (event) => {
@@ -73,28 +96,60 @@ class HomePage extends Component {
     this.setState((prevState) => {
       let { formError, formInput } = prevState;
       formInput = value;
-      if (value) formError = '';
-      return { formInput, formError };
+      formError = '';
+      return { formInput, formError, noDataCell: false };
     });
   };
 
-  // handleChange = (event) => {
-  //   const { name, value } = event.target;
-  //   this.setState((prevState) => {
-  //     const { formData, formErrors } = prevState;
-  //     formData[name] = trimStart(value);
-  //     if (value) {
-  //       delete formErrors[name];
-  //     }
-  //     return { formData, formErrors };
-  //   });
+  handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      this.handleSubmit();
+    }
+  };
 
-  //   this.debounceFieldValidation(name);
-  // };
+  handleSort = () => {
+    this.setState(
+      (prevState) => ({
+        sortAssending: !prevState.sortAssending
+      }),
+      this.sortCard()
+    );
+  };
+
+  sortCard = () => {
+    const { sortAssending } = this.state;
+    let { cardData } = this.state;
+    if (sortAssending) cardData = cardData.sort((a, b) => a.score - b.score);
+    if (!sortAssending) cardData = cardData.sort((a, b) => b.score - a.score);
+    this.setState({ cardData });
+  };
+
+  handleCloseNotify = () => {
+    this.setState({ notify: false });
+  };
+
+  handlePopupOpen = (userName) => {
+    this.setState({ popup: { userName, open: true } });
+  };
+
+  handleClosePopup = () => {
+    this.setState(({ popup }) => ({ popup: { ...popup, open: false } }));
+  };
 
   render() {
     const { classes } = this.props;
-    const { cardData, formInput, formError } = this.state;
+    const {
+      cardData,
+      formInput,
+      formError,
+      loader,
+      noDataCell,
+      notify,
+      notifyTheme,
+      sortAssending,
+      popup
+    } = this.state;
     return (
       <>
         <Container className={classes.mainComtainer} maxWidth='lg'>
@@ -107,35 +162,66 @@ class HomePage extends Component {
               >
                 <GitHubIcon color='primary' />
               </IconButton>
-              <InputBase
-                className={classes.inputForm}
+              <TextField
                 placeholder='Search github'
-                margin='dense'
-                input
+                error={!!formError}
                 value={formInput}
                 name='searchInput'
                 onChange={this.handleChangeForm}
-                inputProps={{
-                  'aria-label': 'Search github',
-                  error: true,
-                  helperText: 'asdf'
-                }}
-                onSubmit={() => alert('oh dog - 2')}
+                onKeyPress={this.handleKeyPress}
+                className={classes.inputForm}
               />
-              <IconButton className={classes.iconButton} aria-label='search'>
+              <IconButton
+                className={classes.iconButton}
+                aria-label='search'
+                onClick={this.handleSubmit}
+              >
                 <SearchIcon />
               </IconButton>
             </Paper>
+
+            <Box className={classes.formError} component='span'>
+              {formError}
+            </Box>
           </Box>
+
+          <Box className={classes.sortButtonSection}>
+            <Button
+              onClick={this.handleSort}
+              className={classes.buttonWithIcon}
+              disabled={!cardData.length}
+              variant='outlined'
+            >
+              Sort By Score
+              {sortAssending ? (
+                <ArrowUpwardIcon
+                  className={classes.buttonIcon}
+                  color={cardData.length ? 'secondary' : 'inherit'}
+                />
+              ) : (
+                <ArrowDownwardIcon
+                  className={classes.buttonIcon}
+                  color={cardData.length ? 'secondary' : 'inherit'}
+                />
+              )}
+            </Button>
+          </Box>
+
           <Divider className={classes.divider} />
           <Box className={classes.cardsBoxWrapper}>
-            <Grid
-              // className={classes.cardContainer}
-              container
-              justify='center'
-              alignItems='center'
-              spacing={1}
-            >
+            <Grid container justify='center' alignItems='center' spacing={1}>
+              {loader && (
+                <Grid className={classes.loaderSection} item xs={12}>
+                  <CircularProgress />
+                </Grid>
+              )}
+
+              {noDataCell && !cardData?.length && (
+                <Grid className={classes.noDataSection} item xs={12}>
+                  No Data
+                </Grid>
+              )}
+
               {cardData.map((profile, idx) => (
                 <Grid
                   className={classes.cardsWrapper}
@@ -143,21 +229,52 @@ class HomePage extends Component {
                   md={4}
                   sm={6}
                   xs={12}
-                  key={`${profile.score + idx}`}
+                  key={`${profile.login + idx}`}
                 >
                   <Card
                     srcAvatar={profile.avatar_url}
                     userName={profile.login}
                     score={profile.score}
+                    handlePopup={() => this.handlePopupOpen(profile.login)}
                   />
                 </Grid>
               ))}
             </Grid>
           </Box>
         </Container>
+        {notify && (
+          <Snackbar
+            open
+            autoHideDuration={2000}
+            onClose={this.handleCloseNotify}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            TransitionComponent={Collapse}
+          >
+            <Alert onClose={this.handleCloseNotify} severity={notifyTheme}>
+              {notifyTheme === 'success' &&
+                'Successfully fetched Profile details'}
+              {notifyTheme === 'warning' && 'No data found, Please try again'}
+              {notifyTheme === 'error' && 'Bad Request'}
+            </Alert>
+          </Snackbar>
+        )}
+        {popup.open && (
+          <DetailsPopup
+            userName={popup.userName}
+            open
+            onClose={this.handleClosePopup}
+          />
+        )}
       </>
     );
   }
 }
+
+HomePage.propTypes = {
+  classes: PropTypes.objectOf(PropTypes.string).isRequired
+};
 
 export default withStyles(styles)(HomePage);

@@ -9,14 +9,17 @@ const fetchGitProfiles = async (searchText) => {
     }
   });
 
-  if (response?.status === 200) {
-    const payLoad = response.data.items.map((row) => ({
-      ...row,
-      score: Math.round(row.score)
-    }));
-    return payLoad;
-  }
+  if (response?.status === 200) return response.data;
+
   throw Error(response?.message);
 };
 
-export { fetchGitProfiles };
+const fetchProfileDetails = async (username) => {
+  const response = await axios.get(`${GIT_API}users/${username}`);
+
+  if (response?.status === 200) return response.data;
+
+  throw Error(response?.message);
+};
+
+export { fetchGitProfiles, fetchProfileDetails };

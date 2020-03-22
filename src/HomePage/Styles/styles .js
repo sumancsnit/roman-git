@@ -1,13 +1,4 @@
 const styles = {
-  // root: {
-  //   background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-  //   border: 0,
-  //   borderRadius: 3,
-  //   boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-  //   color: 'white',
-  //   height: 48,
-  //   padding: '0 30px'
-  // },
   mainComtainer: {
     height: '100%',
     padding: '1rem 8px',
@@ -24,7 +15,12 @@ const styles = {
   },
   formSection: {
     display: 'flex',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'column'
+  },
+  formError: {
+    color: '#f44336'
   },
   formWrapper: {
     padding: '2px 4px',
@@ -34,7 +30,9 @@ const styles = {
     maxWidth: '600px'
   },
   inputForm: {
-    flex: 1
+    flex: 1,
+    marginBottom: '8px',
+    marginTop: '8px'
   },
   iconButton: {
     padding: 10
@@ -45,7 +43,7 @@ const styles = {
     justifyContent: 'center'
   },
   cardsBoxWrapper: {
-    height: 'calc(100vh - 135px)',
+    height: 'calc(100vh - 200px)',
     overflowX: 'hidden',
     overflowY: 'auto',
     paddingBottom: '2rem',
@@ -80,7 +78,47 @@ const styles = {
     marginTop: '1rem',
     marginBottom: '1rem'
   },
+  loaderSection: {
+    display: 'flex',
+    justifyContent: 'center'
+  },
+  noDataSection: {
+    fontSize: '1rem',
+    textAlign: 'center',
+    paddingTop: '2rem',
+    fontWeight: 500
+  },
+  sortButtonSection: {
+    display: 'flex',
+    justifyContent: 'flex-end'
+  },
 
+  buttonWithIcon: {
+    marginRight: '1rem'
+  },
+
+  buttonIcon: {
+    paddingLeft: '4px'
+  },
+
+  listWrapper: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    fontSize: '1rem',
+    fontWeight: 'bold'
+  },
+  dialogWrapper: {
+    width: '400px',
+    minHeight: '300px'
+  },
+  popupLoader: {
+    margin: '2rem'
+  },
+  listHeader: {
+    fontWeight: '700',
+    textAlign: 'center',
+    fontSize: '1.5rem'
+  },
   // media-query
 
   '@media (max-width: 600px)': {
